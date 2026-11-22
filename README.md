@@ -11,7 +11,7 @@ pay, and catches the UPI payments you forgot to add.
 
 ## Download
 
-**[Download Biko v0.1.0 (APK)](https://github.com/B-a-l-aj-i/biko/releases/download/v0.1.0/biko-v0.1.0.apk)**
+**[Download the latest Biko (APK)](https://github.com/B-a-l-aj-i/biko/releases/latest/download/biko.apk)**
 
 All versions are on the [releases page](https://github.com/B-a-l-aj-i/biko/releases).
 
@@ -27,7 +27,8 @@ All versions are on the [releases page](https://github.com/B-a-l-aj-i/biko/relea
 - **Your data stays on your phone.** Everything is one JSON file. No account,
   no server, nothing uploaded.
 - **Backup.** Export your budgets, payments and voice notes to a single `.zip`
-  file, and import it on a new phone.
+  file, and import it on a new phone. Turn on automatic backup and it saves a
+  fresh copy every 3 days to a folder you pick.
 - **Exact money.** Amounts are kept in paise, so every figure adds up to the paisa.
 
 ## Install
