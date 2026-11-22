@@ -35,7 +35,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -75,8 +74,8 @@ import com.budgetapp.ui.theme.LocalStatusColors
 import com.budgetapp.ui.category.NewCategoryDialog
 import com.budgetapp.data.CategoryBudget
 import com.budgetapp.ui.components.collapsedBy
-
-private val CardShape = RoundedCornerShape(20.dp)
+import com.budgetapp.ui.theme.CardShape
+import com.budgetapp.ui.components.CardDivider
 
 /** What the budget dialog is editing; a null [category] means the overall budget. */
 private data class Editing(val category: CategoryBudget?)
@@ -167,10 +166,7 @@ fun BudgetScreen(
                                 // A removed row fades and closes up; a new one opens out.
                                 Column(Modifier.collapsedBy { row.amount.value }) {
                                     if (index > 0) {
-                                        HorizontalDivider(
-                                            color = MaterialTheme.colorScheme.outlineVariant,
-                                            modifier = Modifier.padding(horizontal = 16.dp),
-                                        )
+                                        CardDivider()
                                     }
                                     CategoryRow(
                                         category = category,

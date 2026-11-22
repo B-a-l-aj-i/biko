@@ -27,11 +27,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -46,7 +43,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.budgetapp.data.Payment
 import com.budgetapp.data.isManual
@@ -57,12 +53,15 @@ import com.budgetapp.data.monthBounds
 import com.budgetapp.data.searchPayments
 import com.budgetapp.data.formatPaise
 import com.budgetapp.ui.theme.PhosphorLight
-import com.budgetapp.ui.theme.cardOutline
-import java.time.Instant
 import java.time.ZonedDateTime
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import com.budgetapp.ui.theme.outlinedSurface
+import com.budgetapp.data.whenText
+import com.budgetapp.ui.components.EmptyListText
+import com.budgetapp.ui.components.BackBar
+import com.budgetapp.ui.components.CardListRow
 
 private val monthYearFormat = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.ENGLISH)
 
@@ -109,18 +108,12 @@ fun SearchScreen(
                 modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
             )
             if (results.isEmpty()) {
-                Text(
+                EmptyListText(
                     when {
                         query.isNotBlank() -> "No payments $inMonth match “${query.trim()}”"
                         isCurrent -> "No payments yet this month"
                         else -> "No payments $inMonth"
                     },
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 48.dp, start = 24.dp, end = 24.dp),
                 )
             } else {
                 val listState = rememberLazyListState()
@@ -162,21 +155,11 @@ private fun summary(count: Int, totalPaise: Long, inMonth: String?): String {
 // rises only when the user taps the search box.
 private fun SearchField(query: String, onChange: (String) -> Unit, onClose: () -> Unit) {
     val muted = MaterialTheme.colorScheme.onSurfaceVariant
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(start = 4.dp, end = 16.dp, top = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        IconButton(onClick = onClose) {
-            Icon(PhosphorLight.ArrowLeft, contentDescription = "Back")
-        }
+    BackBar(onBack = onClose) {
         Row(
             modifier = Modifier
                 .weight(1f)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.surface)
-                .cardOutline(CircleShape)
+                .outlinedSurface(CircleShape)
                 .padding(horizontal = 16.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -214,26 +197,7 @@ private fun SearchField(query: String, onChange: (String) -> Unit, onClose: () -
 
 @Composable
 private fun ResultRow(payment: Payment, first: Boolean, last: Boolean, now: ZonedDateTime, onClick: () -> Unit) {
-    // Rows are drawn as one card: rounded only at its top and bottom ends.
-    val shape = RoundedCornerShape(
-        topStart = if (first) 20.dp else 0.dp,
-        topEnd = if (first) 20.dp else 0.dp,
-        bottomStart = if (last) 20.dp else 0.dp,
-        bottomEnd = if (last) 20.dp else 0.dp,
-    )
-    Column(
-        Modifier
-            .fillMaxWidth()
-            .clip(shape)
-            .background(MaterialTheme.colorScheme.surface)
-            .cardOutline(shape),
-    ) {
-        if (!first) {
-            HorizontalDivider(
-                color = MaterialTheme.colorScheme.outlineVariant,
-                modifier = Modifier.padding(horizontal = 16.dp),
-            )
-        }
+    CardListRow(first, last) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -273,13 +237,3 @@ private fun ResultRow(payment: Payment, first: Boolean, last: Boolean, now: Zone
         }
     }
 }
-
-/** "Today, 3:19 pm", or "12 Nov, 3:19 pm" for an earlier day. */
-private fun whenText(millis: Long, now: ZonedDateTime): String {
-    val at = Instant.ofEpochMilli(millis).atZone(now.zone)
-    val time = timeFormat.format(at).lowercase()
-    return if (at.toLocalDate() == now.toLocalDate()) "Today, $time" else "${dayFormat.format(at)}, $time"
-}
-
-private val timeFormat = DateTimeFormatter.ofPattern("h:mm a", Locale.ENGLISH)
-private val dayFormat = DateTimeFormatter.ofPattern("d MMM", Locale.ENGLISH)

@@ -11,7 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.HorizontalDivider
+import com.budgetapp.ui.components.CardDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -33,6 +33,7 @@ import com.budgetapp.ui.theme.LocalStatusColors
 import com.budgetapp.ui.theme.PhosphorLight
 import com.budgetapp.ui.theme.cardBorder
 import com.budgetapp.ui.theme.cardOutline
+import com.budgetapp.ui.theme.CardShape
 
 @Composable
 internal fun PendingCard(
@@ -106,10 +107,7 @@ internal fun RecentCard(recent: List<Transaction>, money: (Long) -> String, onOp
         Column {
             recent.forEachIndexed { index, txn ->
                 if (index > 0) {
-                    HorizontalDivider(
-                        color = MaterialTheme.colorScheme.outlineVariant,
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                    )
+                    CardDivider()
                 }
                 Row(
                     modifier = Modifier

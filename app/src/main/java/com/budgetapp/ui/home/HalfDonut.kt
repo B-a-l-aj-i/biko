@@ -56,10 +56,9 @@ import com.budgetapp.ui.theme.PhosphorLight
 import com.budgetapp.ui.theme.cardOutline
 import com.budgetapp.ui.theme.labelOn
 import java.time.YearMonth
-import java.time.format.DateTimeFormatter
-import java.util.Locale
 import kotlin.math.cos
 import kotlin.math.sin
+import com.budgetapp.data.monthName
 
 /** A part of the half donut the user can pick out by tapping it or its legend. */
 internal enum class DonutPart { SPENT, LEFT }
@@ -77,7 +76,7 @@ internal fun EmptyMonth(month: YearMonth?) {
         Icon(PhosphorLight.Receipt, contentDescription = null, tint = muted, modifier = Modifier.size(40.dp))
         Spacer(Modifier.height(14.dp))
         Text(
-            month?.let { "No payments in " + it.format(DateTimeFormatter.ofPattern("MMMM", Locale.ENGLISH)) }
+            month?.let { "No payments in " + monthName(it) }
                 ?: "No payments",
             style = MaterialTheme.typography.titleMedium,
         )

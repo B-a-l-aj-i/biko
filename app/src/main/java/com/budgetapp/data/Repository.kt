@@ -134,7 +134,7 @@ class Repository(private val store: JsonStore) {
     suspend fun addPayment(payment: Payment): Long {
         var id = 0L
         store.update { data ->
-            id = (data.payments.maxOfOrNull { it.id } ?: 0L) + 1
+            id = nextPaymentId(data)
             data.copy(payments = data.payments + payment.copy(id = id))
         }
         return id
@@ -190,7 +190,7 @@ class Repository(private val store: JsonStore) {
                     payments = data.payments.map { if (it.id == match.id) applyAlert(it, alert, source) else it },
                 )
             } else {
-                val id = (data.payments.maxOfOrNull { it.id } ?: 0L) + 1
+                val id = nextPaymentId(data)
                 newId = id
                 val payment = Payment(
                     id = id,
@@ -271,6 +271,12 @@ class Repository(private val store: JsonStore) {
 }
 
 /** "Other" must be a category for the spending under it to show on Budget. */
+/** The id a new payment gets: one more than the highest so far, so ids are never reused. */
+private fun nextPaymentId(data: BudgetData): Long = (data.payments.maxOfOrNull { it.id } ?: 0L) + 1
+
+/** How many deleted payments' references are remembered; older ones are long past any alert. */
+private const val MAX_DELETED_REFS = 500
+
 private fun withAlertCategory(categories: List<Category>): List<Category> =
     if (categories.any { it.name == ALERT_CATEGORY }) categories else categories + Category(ALERT_CATEGORY, "📦", 0)
 
@@ -291,6 +297,9 @@ private val defaultCategories = listOf(
 )
 
 /** App-wide singletons. Set up once in [com.budgetapp.BudgetApplication]. */
+/** Where voice notes are saved: inside the app, so they go with an uninstall (Export keeps them). */
+fun voiceNotesDir(context: Context): File = File(context.filesDir, "voice-notes")
+
 object Graph {
     lateinit var repository: Repository
         private set

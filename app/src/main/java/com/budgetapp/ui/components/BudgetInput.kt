@@ -1,5 +1,9 @@
 package com.budgetapp.ui.components
 
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.Stable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,6 +25,10 @@ import androidx.compose.ui.unit.sp
 import com.budgetapp.data.formatRupees
 import com.budgetapp.data.percentText
 import com.budgetapp.ui.theme.LocalStatusColors
+import com.budgetapp.data.budgetInputRupees
+import com.budgetapp.data.cleanPercent
+import com.budgetapp.data.cleanAmount
+import com.budgetapp.data.budgetInputText
 
 /** A large figure field for rupees, or for a percentage when [percent] is set. */
 @Composable
@@ -87,3 +95,33 @@ fun BudgetShareHint(amount: Int, monthlyBudget: Int, room: Int, byPercent: Boole
         )
     }
 }
+
+/**
+ * What a budget field holds: whole rupees, or a percentage of [monthlyBudget],
+ * as the user typed it. Switching between the two keeps the same amount.
+ */
+@Stable
+class BudgetInputState internal constructor(initial: String, private val monthlyBudget: Int) {
+    var text by mutableStateOf(initial)
+        private set
+    var byPercent by mutableStateOf(false)
+        private set
+
+    /** What the field means, in whole rupees. */
+    val rupees: Int get() = budgetInputRupees(text, byPercent, monthlyBudget)
+
+    /** Takes what was typed, keeping only what fits a rupee amount or a percentage. */
+    fun type(typed: String) {
+        text = if (byPercent) cleanPercent(typed) else cleanAmount(typed)
+    }
+
+    fun switchTo(percent: Boolean) {
+        if (percent == byPercent) return
+        text = budgetInputText(rupees, percent, monthlyBudget)
+        byPercent = percent
+    }
+}
+
+@Composable
+fun rememberBudgetInput(initial: String, monthlyBudget: Int): BudgetInputState =
+    remember { BudgetInputState(initial, monthlyBudget) }

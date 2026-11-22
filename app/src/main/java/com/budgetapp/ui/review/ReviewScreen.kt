@@ -31,7 +31,6 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -49,21 +48,20 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.budgetapp.data.Payment
-import com.budgetapp.data.alertSourceLabel
 import com.budgetapp.data.paymentsToReview
 import com.budgetapp.ui.components.scrollFade
 import com.budgetapp.data.formatPaise
 import com.budgetapp.ui.theme.LocalStatusColors
 import com.budgetapp.ui.theme.PhosphorLight
-import com.budgetapp.ui.theme.cardOutline
-import java.time.Instant
 import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
-import java.util.Locale
+import com.budgetapp.data.whenText
+import com.budgetapp.data.sourceLabel
+import com.budgetapp.ui.components.BackBar
+import com.budgetapp.ui.components.EmptyListText
+import com.budgetapp.ui.components.CardListRow
 
 /** How long Undo stays on screen after a tick or a cross. */
 private const val UNDO_MS = 5_000
@@ -111,15 +109,7 @@ fun ReviewScreen(
                 .windowInsetsPadding(WindowInsets.systemBars.union(WindowInsets.displayCutout)),
         ) {
             Column(Modifier.fillMaxSize()) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 4.dp, end = 16.dp, top = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    IconButton(onClick = onClose) {
-                        Icon(PhosphorLight.ArrowLeft, contentDescription = "Back")
-                    }
+                BackBar(onBack = onClose) {
                     Text("To review", style = MaterialTheme.typography.titleLarge)
                 }
                 Text(
@@ -129,15 +119,7 @@ fun ReviewScreen(
                     modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
                 )
                 if (toReview.isEmpty()) {
-                    Text(
-                        "Nothing to review",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 48.dp, start = 24.dp, end = 24.dp),
-                    )
+                    EmptyListText("Nothing to review")
                 } else {
                     val listState = rememberLazyListState()
                     LazyColumn(
@@ -187,26 +169,7 @@ private fun ReviewRow(
     onRemove: () -> Unit,
 ) {
     val status = LocalStatusColors.current
-    // Rows are drawn as one card: rounded only at its top and bottom ends.
-    val shape = RoundedCornerShape(
-        topStart = if (first) 20.dp else 0.dp,
-        topEnd = if (first) 20.dp else 0.dp,
-        bottomStart = if (last) 20.dp else 0.dp,
-        bottomEnd = if (last) 20.dp else 0.dp,
-    )
-    Column(
-        Modifier
-            .fillMaxWidth()
-            .clip(shape)
-            .background(MaterialTheme.colorScheme.surface)
-            .cardOutline(shape),
-    ) {
-        if (!first) {
-            HorizontalDivider(
-                color = MaterialTheme.colorScheme.outlineVariant,
-                modifier = Modifier.padding(horizontal = 16.dp),
-            )
-        }
+    CardListRow(first, last) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -222,7 +185,7 @@ private fun ReviewRow(
                     overflow = TextOverflow.Ellipsis,
                 )
                 Text(
-                    "${alertSourceLabel(payment.alertSources.firstOrNull().orEmpty())} · ${whenText(payment.createdAt, now)}",
+                    "${payment.sourceLabel} · ${whenText(payment.createdAt, now)}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -312,13 +275,3 @@ private fun UndoBar(
         }
     }
 }
-
-/** "Today, 3:19 pm", or "12 Nov, 3:19 pm" for an earlier day. */
-private fun whenText(millis: Long, now: ZonedDateTime): String {
-    val at = Instant.ofEpochMilli(millis).atZone(now.zone)
-    val time = timeFormat.format(at).lowercase()
-    return if (at.toLocalDate() == now.toLocalDate()) "Today, $time" else "${dayFormat.format(at)}, $time"
-}
-
-private val timeFormat = DateTimeFormatter.ofPattern("h:mm a", Locale.ENGLISH)
-private val dayFormat = DateTimeFormatter.ofPattern("d MMM", Locale.ENGLISH)

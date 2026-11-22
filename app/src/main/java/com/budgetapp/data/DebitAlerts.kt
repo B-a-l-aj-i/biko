@@ -45,6 +45,9 @@ val UPI_APPS: Map<String, String> = linkedMapOf(
 /** The app an alert came from, in words: "PhonePe", "Google Pay"; "UPI app" for any other. */
 fun alertSourceLabel(packageName: String): String = UPI_APPS[packageName] ?: "UPI app"
 
+/** The app that first reported [this] payment, in words. */
+val Payment.sourceLabel: String get() = alertSourceLabel(alertSources.firstOrNull().orEmpty())
+
 /**
  * Reads [text], the title and body of a UPI app's notification, as a payment
  * the user made. Returns null unless it clearly says money was paid or sent,
@@ -202,5 +205,3 @@ private fun payeeIn(flat: String, vpa: String?): String? {
 
 private const val MAX_PAYEE = 40
 
-/** How many deleted payments' references are remembered; older ones are long past any alert. */
-const val MAX_DELETED_REFS = 500

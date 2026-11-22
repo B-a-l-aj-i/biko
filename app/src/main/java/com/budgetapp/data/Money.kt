@@ -108,8 +108,10 @@ private fun groupIndian(rupees: Long): String {
     return pairs + "," + digits.takeLast(3)
 }
 
+/** The keypad's delete key. */
 internal const val BACKSPACE = "⌫"
 
+/** What the keypad text means in paise; nothing typed yet is zero. */
 internal fun String.toPaise(): Long = parsePaise(this) ?: 0L
 
 /** Applies one keypad press, allowing at most 7 rupee digits and 2 decimals. */

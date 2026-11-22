@@ -28,6 +28,7 @@ import com.budgetapp.ui.theme.LocalStatusColors
 import kotlinx.coroutines.delay
 import java.io.File
 import com.budgetapp.ui.components.Pill
+import com.budgetapp.data.voiceNotesDir
 
 /** Records one audio note at a time into the app's private storage. */
 private class VoiceRecorder(private val context: Context) {
@@ -35,7 +36,7 @@ private class VoiceRecorder(private val context: Context) {
     private var file: File? = null
 
     fun start(): Boolean {
-        val dir = File(context.filesDir, "voice-notes").apply { mkdirs() }
+        val dir = voiceNotesDir(context).apply { mkdirs() }
         val target = File(dir, "${System.currentTimeMillis()}.m4a")
         val created = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             MediaRecorder(context)

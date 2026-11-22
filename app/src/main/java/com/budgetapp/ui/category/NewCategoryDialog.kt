@@ -10,11 +10,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.foundation.clickable
 import androidx.compose.runtime.SideEffect
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import com.budgetapp.data.percentText
-import com.budgetapp.data.percentToRupees
 import com.budgetapp.ui.components.BudgetAmountField
 import com.budgetapp.ui.components.BudgetShareHint
 import com.budgetapp.ui.components.ModalButtons
@@ -63,8 +59,8 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import com.budgetapp.data.cleanAmount
-import com.budgetapp.data.cleanPercent
+import com.budgetapp.ui.components.clickableWithoutRipple
+import com.budgetapp.ui.components.rememberBudgetInput
 
 private const val PANEL_SLIDE_MS = 280
 
@@ -87,7 +83,6 @@ fun NewCategoryDialog(
 ) {
     var name by remember { mutableStateOf("") }
     var emoji by remember { mutableStateOf("") }
-    var budget by remember { mutableStateOf("") }
 
     var panelOpen by remember { mutableStateOf(false) }
     var searching by remember { mutableStateOf(false) }
@@ -133,20 +128,10 @@ fun NewCategoryDialog(
     // With a monthly budget to take a share of, the budget can be typed as
     // rupees or as a percentage, and may not exceed what is still free.
     val sharesBudget = monthlyBudget > 0
-    var byPercent by remember { mutableStateOf(false) }
-    val amount = if (byPercent) percentToRupees(budget, monthlyBudget) else budget.toIntOrNull() ?: 0
+    val input = rememberBudgetInput("", monthlyBudget)
+    val amount = input.rupees
     val room = freeBudget ?: Int.MAX_VALUE
     val tooMuch = sharesBudget && amount > room
-
-    fun switchTo(percent: Boolean) {
-        if (percent == byPercent) return
-        budget = when {
-            amount == 0 -> ""
-            percent -> percentText(amount, monthlyBudget).removeSuffix("%")
-            else -> amount.toString()
-        }
-        byPercent = percent
-    }
 
     fun closePanel() {
         panelOpen = false
@@ -181,10 +166,8 @@ fun NewCategoryDialog(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null,
-                        onClick = dismiss,
+                    .clickableWithoutRipple(
+                                                onClick = dismiss,
                     ),
                 contentAlignment = Alignment.Center,
             ) {
@@ -202,10 +185,8 @@ fun NewCategoryDialog(
                         // the top of the screen.
                         .graphicsLayer { translationY = -minOf(panelRise.value / 2, cardTop) }
                         // Swallows taps so they don't reach the dismiss area behind.
-                        .clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null,
-                            onClick = {},
+                        .clickableWithoutRipple(
+                                                        onClick = {},
                         ),
                 ) {
                     Column(
@@ -277,10 +258,8 @@ fun NewCategoryDialog(
                                 Box(
                                     Modifier
                                         .matchParentSize()
-                                        .clickable(
-                                            interactionSource = remember { MutableInteractionSource() },
-                                            indication = null,
-                                            onClickLabel = "Choose an emoji",
+                                        .clickableWithoutRipple(
+                                                                                        onClickLabel = "Choose an emoji",
                                         ) {
                                             // Drops the real keyboard if another field had it.
                                             focusManager?.clearFocus()
@@ -308,14 +287,14 @@ fun NewCategoryDialog(
                         if (sharesBudget) {
                             SegmentedToggle(
                                 options = listOf("Amount", "Percentage"),
-                                selected = if (byPercent) 1 else 0,
-                                onSelect = { switchTo(it == 1) },
+                                selected = if (input.byPercent) 1 else 0,
+                                onSelect = { input.switchTo(it == 1) },
                             )
                         }
                         BudgetAmountField(
-                            text = budget,
-                            onChange = { budget = if (byPercent) cleanPercent(it) else cleanAmount(it) },
-                            percent = byPercent,
+                            text = input.text,
+                            onChange = input::type,
+                            percent = input.byPercent,
                             label = "Monthly budget (optional)",
                             modifier = Modifier.onFocusChanged {
                                 budgetFocused = it.isFocused
@@ -323,7 +302,7 @@ fun NewCategoryDialog(
                             },
                         )
                         if (sharesBudget) {
-                            BudgetShareHint(amount, monthlyBudget, room, byPercent)
+                            BudgetShareHint(amount, monthlyBudget, room, input.byPercent)
                         }
 
                         ModalButtons(

@@ -9,7 +9,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
@@ -166,6 +169,14 @@ fun cardBorder(): BorderStroke? =
 /** [cardBorder] for a card drawn with a plain background instead of a Surface. */
 @Composable
 fun Modifier.cardOutline(shape: Shape): Modifier = cardBorder()?.let { border(it, shape) } ?: this
+
+/** The shape of every card on the screens. */
+val CardShape = RoundedCornerShape(20.dp)
+
+/** A card-coloured [shape] with the card outline: pills, round buttons, search and note fields. */
+@Composable
+fun Modifier.outlinedSurface(shape: Shape): Modifier =
+    clip(shape).background(MaterialTheme.colorScheme.surface).cardOutline(shape)
 
 /**
  * Soft pastels for charts and colour washes. Light enough that dark text

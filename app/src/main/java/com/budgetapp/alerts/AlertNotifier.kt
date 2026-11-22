@@ -15,8 +15,8 @@ import androidx.core.content.ContextCompat
 import com.budgetapp.MainActivity
 import com.budgetapp.data.Payment
 import com.budgetapp.data.UNKNOWN_PAYEE
-import com.budgetapp.data.alertSourceLabel
 import com.budgetapp.data.formatPaise
+import com.budgetapp.data.sourceLabel
 
 /**
  * Our own notification for a debit the app found but the user never recorded:
@@ -51,7 +51,7 @@ object AlertNotifier {
             .setContentText("Tap to review it")
             .setStyle(
                 NotificationCompat.BigTextStyle().bigText(
-                    "${alertSourceLabel(payment.alertSources.firstOrNull().orEmpty())} reported $what. It doesn't count as spent until you confirm it. " +
+                    "${payment.sourceLabel} reported $what. It doesn't count as spent until you confirm it. " +
                         "Tap to review it.",
                 ),
             )

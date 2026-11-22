@@ -57,6 +57,7 @@ import kotlin.math.cos
 import kotlin.math.roundToInt
 import kotlin.math.sin
 import kotlin.math.sqrt
+import com.budgetapp.data.categoryLabel
 
 /** One category's slice of the month's spending, as the donut draws it. */
 data class DonutPiece(
@@ -213,7 +214,7 @@ private fun FloatingLegend(piece: DonutPiece, totalPaise: Long, modifier: Modifi
                         .background(piece.color, CircleShape),
                 )
                 Spacer(Modifier.width(6.dp))
-                Text("${piece.emoji} ${piece.name}".trim(), style = MaterialTheme.typography.labelLarge)
+                Text(categoryLabel(piece.emoji, piece.name), style = MaterialTheme.typography.labelLarge)
             }
             Spacer(Modifier.height(2.dp))
             Text(

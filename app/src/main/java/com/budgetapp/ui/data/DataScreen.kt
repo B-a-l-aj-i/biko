@@ -70,12 +70,10 @@ import com.budgetapp.ui.theme.BudgetAppTheme
 import com.budgetapp.ui.theme.cardBorder
 import com.budgetapp.ui.theme.cardOutline
 import java.io.File
-import java.time.Instant
 import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import java.util.Locale
-
-private val CardShape = RoundedCornerShape(20.dp)
+import com.budgetapp.ui.theme.CardShape
+import com.budgetapp.data.dayTimeText
 
 /** The title, six cards and the closing note: the pieces that arrive one after another. */
 private const val SECTIONS = 8
@@ -111,7 +109,7 @@ fun DataScreen(
 
     // Re-read when the data changes; the file is saved before the counts update.
     val details = remember(file, categoryCount, paymentCount) {
-        if (file.exists()) "${sizeText(file.length())} · saved ${savedText(file.lastModified())}" else "Not saved yet"
+        if (file.exists()) "${sizeText(file.length())} · saved ${dayTimeText(file.lastModified(), ZoneId.systemDefault())}" else "Not saved yet"
     }
 
     // Each section rises a short way into its own place once the sheet is up.
@@ -445,10 +443,6 @@ private fun sizeText(bytes: Long): String = when {
     else -> String.format(Locale.ENGLISH, "%.1f MB", bytes / (1024.0 * 1024.0))
 }
 
-private val savedFormat = DateTimeFormatter.ofPattern("d MMM, h:mm a", Locale.ENGLISH)
-
-private fun savedText(millis: Long): String =
-    savedFormat.format(Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault()))
 
 @Preview(showBackground = true, widthDp = 380, heightDp = 820)
 @Composable

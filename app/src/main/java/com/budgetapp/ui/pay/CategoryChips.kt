@@ -47,6 +47,7 @@ import com.budgetapp.ui.components.rememberRemoveMode
 import com.budgetapp.ui.components.shake
 import com.budgetapp.data.CategoryBudget
 import com.budgetapp.ui.components.glideToPlace
+import com.budgetapp.data.categoryLabel
 
 private val ChipShape = RoundedCornerShape(8.dp)
 private val ChipHeight = 34.dp
@@ -86,7 +87,7 @@ fun CategoryChips(
             key(chip) {
                 val item = chip.item
                 CategoryChip(
-                    label = "${item.emoji} ${item.name}".trim(),
+                    label = categoryLabel(item.emoji, item.name),
                     selected = item.name == selected && !removing,
                     chip = chip,
                     removeMode = removeMode,

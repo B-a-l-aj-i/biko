@@ -24,9 +24,11 @@ import java.time.ZonedDateTime
 import com.budgetapp.data.rupeesToPaise
 import com.budgetapp.data.monthBounds
 import java.time.YearMonth
-import java.time.format.DateTimeFormatter
-import java.util.Locale
 import com.budgetapp.data.CategoryBudget
+import com.budgetapp.data.monthShortName
+import com.budgetapp.data.timeText
+import com.budgetapp.data.monthName
+import com.budgetapp.data.dayText
 
 class HomeViewModel(private val repository: Repository) : ViewModel() {
 
@@ -133,7 +135,7 @@ internal fun buildHomeState(
 
     return HomeUiState(
         // Three letters (Jan, Feb, Nov), so the header's month button stays small.
-        monthLabel = shown.format(DateTimeFormatter.ofPattern("MMM", Locale.ENGLISH)),
+        monthLabel = monthShortName(shown),
         monthlyBudget = monthlyBudget,
         spentPaise = spentPaise,
         daysLeft = if (past) 0 else today.lengthOfMonth() - today.dayOfMonth + 1,
@@ -146,7 +148,7 @@ internal fun buildHomeState(
             Transaction(
                 payee = it.title,
                 category = it.category,
-                time = timeFormat.format(at).lowercase(),
+                time = timeText(at),
                 amountPaise = it.amountPaise,
                 id = it.id,
                 day = dayLabel(at.toLocalDate(), today),
@@ -177,7 +179,7 @@ internal fun buildHomeState(
  * budget, "over budget" past it by even a paisa. Compared in paise, never rounded.
  */
 internal fun pastMonthLine(month: YearMonth, spentPaise: Long, budgetRupees: Int): String {
-    val name = month.format(DateTimeFormatter.ofPattern("MMMM", Locale.ENGLISH))
+    val name = monthName(month)
     return when {
         spentPaise == 0L -> "Nothing spent in $name"
         spentPaise <= rupeesToPaise(budgetRupees) -> "$name ended within budget"
@@ -185,12 +187,9 @@ internal fun pastMonthLine(month: YearMonth, spentPaise: Long, budgetRupees: Int
     }
 }
 
-private val timeFormat = DateTimeFormatter.ofPattern("h:mm a", Locale.ENGLISH)
-private val dayFormat = DateTimeFormatter.ofPattern("d MMM", Locale.ENGLISH)
-
 /** "Today", "Yesterday", or "12 Nov" for an earlier day. */
 internal fun dayLabel(day: LocalDate, today: LocalDate): String = when (day) {
     today -> "Today"
     today.minusDays(1) -> "Yesterday"
-    else -> dayFormat.format(day)
+    else -> dayText(day)
 }

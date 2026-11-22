@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -33,6 +32,7 @@ import com.budgetapp.alerts.AlertNotifier
 import com.budgetapp.alerts.PaymentAlertListener
 import com.budgetapp.data.ALERT_CATEGORY
 import com.budgetapp.ui.theme.cardBorder
+import com.budgetapp.ui.theme.CardShape
 
 /**
  * Turns on payment alerts: the app reads the payment notifications of PhonePe,
@@ -85,7 +85,7 @@ fun PaymentAlertsCard(modifier: Modifier = Modifier) {
         }
     }
 
-    Surface(shape = RoundedCornerShape(20.dp), border = cardBorder(), modifier = modifier.fillMaxWidth()) {
+    Surface(shape = CardShape, border = cardBorder(), modifier = modifier.fillMaxWidth()) {
         Column(Modifier.padding(20.dp)) {
             Text("Payment alerts", style = MaterialTheme.typography.titleMedium)
             Spacer(Modifier.height(8.dp))

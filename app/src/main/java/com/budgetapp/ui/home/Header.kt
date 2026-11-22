@@ -61,6 +61,7 @@ import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.haze
 import dev.chrisbanes.haze.hazeChild
 import java.time.YearMonth
+import com.budgetapp.ui.theme.outlinedSurface
 
 /**
  * Soft washes of colour behind the page that say how the month is going:
@@ -220,9 +221,7 @@ internal fun Header(
             Box(
                 modifier = Modifier
                     .size(HEADER_ROW_HEIGHT)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surface)
-                    .cardOutline(CircleShape)
+                    .outlinedSurface(CircleShape)
                     .clickable(onClick = onToggleHidden),
                 contentAlignment = Alignment.Center,
             ) {

@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -58,8 +57,6 @@ import androidx.lifecycle.compose.LifecycleEventEffect
 
 import java.time.YearMonth
 import androidx.compose.foundation.ExperimentalFoundationApi
-
-internal val CardShape = RoundedCornerShape(20.dp)
 
 @Composable
 fun HomeScreen(

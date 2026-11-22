@@ -43,6 +43,7 @@ import java.time.Instant
 import java.time.ZoneId
 import kotlinx.coroutines.launch
 import com.budgetapp.ui.home.ConfirmPaymentDialog
+import com.budgetapp.data.voiceNotesDir
 
 class MainActivity : ComponentActivity() {
 
@@ -207,7 +208,7 @@ private fun BudgetApp(
                             val message = try {
                                 val input = context.contentResolver.openInputStream(uri)
                                     ?: error("Could not open the file")
-                                val voiceDir = java.io.File(context.filesDir, "voice-notes")
+                                val voiceDir = voiceNotesDir(context)
                                 val loaded = input.use {
                                     Graph.repository.importBackup(it, voiceDir, System.currentTimeMillis())
                                 }

@@ -4,8 +4,6 @@ import java.math.RoundingMode
 import java.time.Instant
 import java.time.YearMonth
 import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
-import java.util.Locale
 
 /**
  * Category budgets for a monthly budget that changed from [oldTotal] to [newTotal],
@@ -45,6 +43,20 @@ fun percentText(part: Int, total: Int): String {
 fun percentToRupees(percent: String, total: Int): Int {
     val value = percent.trim().toBigDecimalOrNull() ?: return 0
     return (value * total.toBigDecimal()).divide(100.toBigDecimal(), 0, RoundingMode.HALF_UP).toInt()
+}
+
+/** What a budget field means in whole rupees: [text] is rupees, or with [byPercent] a percentage of [monthlyBudget]. */
+fun budgetInputRupees(text: String, byPercent: Boolean, monthlyBudget: Int): Int =
+    if (byPercent) percentToRupees(text, monthlyBudget) else text.toIntOrNull() ?: 0
+
+/**
+ * What a budget field shows for [rupees] after switching to percent (or back),
+ * so the amount stays the same. Empty for nothing.
+ */
+fun budgetInputText(rupees: Int, percent: Boolean, monthlyBudget: Int): String = when {
+    rupees == 0 -> ""
+    percent -> percentText(rupees, monthlyBudget).removeSuffix("%")
+    else -> rupees.toString()
 }
 
 /**
@@ -113,7 +125,7 @@ data class PaymentImpact(
     /** The warning line on Pay, e.g. "This puts Food ₹100 over budget for October". */
     val words: String
         get() {
-            val forMonth = if (otherMonth) " for " + month.format(DateTimeFormatter.ofPattern("MMMM", Locale.ENGLISH)) else ""
+            val forMonth = if (otherMonth) " for " + monthName(month) else ""
             val money = formatPaise(standing.amountPaise)
             return when (standing.kind) {
                 StandingKind.OVER -> "This puts $category $money over budget$forMonth"

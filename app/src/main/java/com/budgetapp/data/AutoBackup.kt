@@ -2,9 +2,7 @@ package com.budgetapp.data
 
 import java.time.Instant
 import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
-import java.util.Locale
 
 /*
  * Automatic backup: every few days the app writes a full backup (the same zip
@@ -72,8 +70,6 @@ fun isAutoBackupDue(lastBackupAt: Long?, now: Long): Boolean =
 fun mayReplaceBackup(fileExists: Boolean, lastBackupAt: Long?, byUser: Boolean): Boolean =
     !fileExists || byUser || lastBackupAt != null
 
-private val backupTimeFormat = DateTimeFormatter.ofPattern("d MMM, h:mm a", Locale.ENGLISH)
-
 /** The status line under "Automatic backup", for example "Last backup 22 Nov, 3:10 am · next in 3 days". */
 fun autoBackupLine(status: AutoBackupStatus, now: Long, zone: ZoneId): String {
     when (status.problem) {
@@ -87,8 +83,7 @@ fun autoBackupLine(status: AutoBackupStatus, now: Long, zone: ZoneId): String {
         null -> Unit
     }
     val last = status.lastBackupAt ?: return "No backup yet"
-    val lastText = backupTimeFormat.format(Instant.ofEpochMilli(last).atZone(zone))
-        .replace("AM", "am").replace("PM", "pm")
+    val lastText = dayTimeText(last, zone)
     val today = Instant.ofEpochMilli(now).atZone(zone).toLocalDate()
     val nextDay = Instant.ofEpochMilli(last).atZone(zone).toLocalDate().plusDays(AUTO_BACKUP_DAYS.toLong())
     val days = ChronoUnit.DAYS.between(today, nextDay)
