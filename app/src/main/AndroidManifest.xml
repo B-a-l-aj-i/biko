@@ -7,6 +7,9 @@
     <!-- For asking what an untracked payment was for. Android 13+ asks the user. -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
+    <!-- Keeps the automatic-backup check scheduled after the phone restarts. -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
     <application
         android:name=".BudgetApplication"
         android:allowBackup="false"
@@ -39,6 +42,13 @@
                 <action android:name="android.service.notification.NotificationListenerService" />
             </intent-filter>
         </service>
+
+        <!-- Every few days writes a backup zip into the folder the user picked.
+             Only scheduled once they pick one on the Data screen. -->
+        <service
+            android:name=".backup.BackupJobService"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
 
         <!-- An untracked-payment notification was swiped away. -->
         <receiver

@@ -23,6 +23,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.budgetapp.backup.AutoBackup
 import com.budgetapp.data.Graph
 import com.budgetapp.data.PaymentStatus
 import com.budgetapp.ui.budget.BudgetScreen
@@ -180,6 +181,7 @@ private fun BudgetApp(
 
             Screen.Data -> {
                 val data by Graph.repository.snapshot.collectAsStateWithLifecycle()
+                val autoBackup by AutoBackup.status.collectAsStateWithLifecycle()
                 DataScreen(
                     file = Graph.repository.dataFile,
                     categoryCount = data.categories.size,
@@ -217,6 +219,23 @@ private fun BudgetApp(
                             Toast.makeText(context, message, Toast.LENGTH_LONG).show()
                         }
                     },
+                    autoBackup = autoBackup,
+                    onBackupFolder = { uri ->
+                        scope.launch {
+                            val message = try {
+                                backupMessage(AutoBackup.setFolder(context, uri))
+                            } catch (e: SecurityException) {
+                                "That folder can't be used. Pick another one."
+                            }
+                            Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+                        }
+                    },
+                    onBackUpNow = {
+                        scope.launch {
+                            Toast.makeText(context, backupMessage(AutoBackup.backUpNow(context)), Toast.LENGTH_LONG).show()
+                        }
+                    },
+                    onAutoBackupOff = { AutoBackup.turnOff(context) },
                 )
             }
 
@@ -290,4 +309,10 @@ private fun BudgetApp(
             },
         )
     }
+}
+
+/** The toast after a backup to the picked folder; the Data screen explains any problem in full. */
+private fun backupMessage(result: AutoBackup.Result): String = when (result) {
+    is AutoBackup.Result.Written -> "Backed up ${result.payments} payments and ${result.voiceNotes} voice notes"
+    is AutoBackup.Result.NotWritten -> "Backup not written; see the Backup card"
 }
