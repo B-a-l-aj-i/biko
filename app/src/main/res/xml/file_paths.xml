@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Folders the app may hand to other apps, so the data file can be opened in a viewer. -->
+<paths>
+    <external-files-path name="data" path="." />
+    <!-- Used only when the phone has no shared storage. -->
+    <files-path name="private_data" path="." />
+</paths>
