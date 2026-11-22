@@ -59,35 +59,24 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.offset
 import androidx.compose.material3.Button
 import androidx.compose.runtime.key
-import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.layout
 import com.budgetapp.ui.components.RemoveBadge
 import com.budgetapp.ui.components.RemoveMode
 import com.budgetapp.ui.components.rememberCategoryRemover
 import com.budgetapp.ui.components.rememberPresences
 import com.budgetapp.ui.components.rememberRemoveMode
 import com.budgetapp.ui.components.shake
-import kotlin.math.roundToInt
 import com.budgetapp.data.percentText
-import com.budgetapp.data.percentToRupees
-import com.budgetapp.ui.components.AppDialog
-import com.budgetapp.ui.components.BudgetAmountField
-import com.budgetapp.ui.components.BudgetShareHint
-import com.budgetapp.ui.components.SegmentedToggle
-import com.budgetapp.ui.components.cleanAmount
-import com.budgetapp.ui.components.cleanPercent
-import com.budgetapp.ui.pay.NewCategoryDialog
-import com.budgetapp.ui.home.CategoryBudget
 import com.budgetapp.ui.home.HomeUiState
 import com.budgetapp.data.formatPaise
 import com.budgetapp.data.formatRupees
 import com.budgetapp.ui.home.sampleHomeState
 import com.budgetapp.ui.theme.BudgetAppTheme
 import com.budgetapp.ui.theme.LocalStatusColors
+import com.budgetapp.ui.category.NewCategoryDialog
+import com.budgetapp.data.CategoryBudget
+import com.budgetapp.ui.components.collapsedBy
 
 private val CardShape = RoundedCornerShape(20.dp)
-
 
 /** What the budget dialog is editing; a null [category] means the overall budget. */
 private data class Editing(val category: CategoryBudget?)
@@ -315,16 +304,6 @@ private fun OverallCard(
     }
 }
 
-/** Scales the element's height by [amount] and fades it to match, for rows that arrive or leave. */
-private fun Modifier.collapsedBy(amount: () -> Float): Modifier = this
-    .clipToBounds()
-    .layout { measurable, constraints ->
-        val placeable = measurable.measure(constraints)
-        val height = (placeable.height * amount().coerceIn(0f, 1f)).roundToInt()
-        layout(placeable.width, height) { placeable.place(0, 0) }
-    }
-    .graphicsLayer { alpha = amount().coerceIn(0f, 1f) }
-
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun CategoryRow(
@@ -412,82 +391,6 @@ private fun CategoryRow(
         }
         Spacer(Modifier.width(4.dp))
         Icon(PhosphorLight.CaretRight, contentDescription = null, tint = muted)
-    }
-}
-
-@Composable
-private fun OverallBudgetDialog(initial: Int, onSave: (Int) -> Unit, onDismiss: () -> Unit) {
-    var text by remember { mutableStateOf(if (initial > 0) initial.toString() else "") }
-    val amount = text.toIntOrNull() ?: 0
-
-    AppDialog(
-        title = "Monthly budget",
-        confirmLabel = "Save",
-        confirmEnabled = amount > 0,
-        onConfirm = { onSave(amount) },
-        onDismiss = onDismiss,
-    ) {
-        BudgetAmountField(text, onChange = { text = cleanAmount(it) }, percent = false, autoFocus = true)
-        Text(
-            "Each category keeps its percentage, so its amount changes with this.",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-    }
-}
-
-/**
- * Sets one category's budget as rupees or as a percentage of [monthlyBudget].
- * [room] is the most it may take (see [categoryRoom]): lowering is always allowed.
- */
-@Composable
-private fun CategoryBudgetDialog(
-    category: CategoryBudget,
-    monthlyBudget: Int,
-    room: Int,
-    onSave: (Int) -> Unit,
-    onDismiss: () -> Unit,
-) {
-    var byPercent by remember { mutableStateOf(false) }
-    var text by remember { mutableStateOf(if (category.budget > 0) category.budget.toString() else "") }
-
-    val amount = if (byPercent) {
-        percentToRupees(text, monthlyBudget)
-    } else {
-        text.toIntOrNull() ?: 0
-    }
-    // Lowering is always allowed, even if the categories already overshoot.
-    val tooMuch = amount > room
-
-    fun switchTo(percent: Boolean) {
-        if (percent == byPercent) return
-        text = when {
-            amount == 0 -> ""
-            percent -> percentText(amount, monthlyBudget).removeSuffix("%")
-            else -> amount.toString()
-        }
-        byPercent = percent
-    }
-
-    AppDialog(
-        title = "${category.emoji} ${category.name} budget".trim(),
-        confirmLabel = "Save",
-        confirmEnabled = !tooMuch,
-        onConfirm = { onSave(amount) },
-        onDismiss = onDismiss,
-    ) {
-        SegmentedToggle(
-            options = listOf("Amount", "Percentage"),
-            selected = if (byPercent) 1 else 0,
-            onSelect = { switchTo(it == 1) },
-        )
-        BudgetAmountField(
-            text = text,
-            onChange = { text = if (byPercent) cleanPercent(it) else cleanAmount(it) },
-            percent = byPercent,
-            autoFocus = true,
-        )
-        BudgetShareHint(amount, monthlyBudget, room, byPercent)
     }
 }
 

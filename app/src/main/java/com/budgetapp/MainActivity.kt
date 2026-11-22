@@ -34,7 +34,6 @@ import com.budgetapp.ui.home.PendingPayment
 import com.budgetapp.data.formatPaise
 import com.budgetapp.ui.nav.StackHost
 import com.budgetapp.ui.nav.rememberNavigator
-import com.budgetapp.ui.pay.ConfirmPaymentDialog
 import com.budgetapp.ui.pay.PayScreen
 import com.budgetapp.ui.theme.BudgetAppTheme
 import com.budgetapp.ui.search.SearchScreen
@@ -43,6 +42,7 @@ import com.budgetapp.data.monthBounds
 import java.time.Instant
 import java.time.ZoneId
 import kotlinx.coroutines.launch
+import com.budgetapp.ui.home.ConfirmPaymentDialog
 
 class MainActivity : ComponentActivity() {
 

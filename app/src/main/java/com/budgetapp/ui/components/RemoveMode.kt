@@ -39,9 +39,9 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.dp
 import com.budgetapp.data.Graph
-import com.budgetapp.ui.home.CategoryBudget
 import com.budgetapp.data.formatPaise
 import kotlinx.coroutines.launch
+import com.budgetapp.data.CategoryBudget
 
 // Everything the "press and hold to remove" behaviour needs, shared by the
 // category chips on the payment sheet and the category rows on the budget page.

@@ -1,4 +1,4 @@
-package com.budgetapp.ui.pay
+package com.budgetapp.ui.category
 
 import android.graphics.Paint
 import android.icu.lang.UCharacter

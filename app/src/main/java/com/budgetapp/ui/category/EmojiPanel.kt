@@ -1,4 +1,4 @@
-package com.budgetapp.ui.pay
+package com.budgetapp.ui.category
 
 import com.budgetapp.ui.theme.PhosphorLight
 import com.budgetapp.ui.theme.cardBorder

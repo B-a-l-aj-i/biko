@@ -2,6 +2,8 @@ package com.budgetapp.data
 
 import java.math.RoundingMode
 import kotlin.math.abs
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 // All money math lives here and in BudgetMath.kt, in whole numbers only.
 // Payments are exact paise (Long); budgets are whole rupees (Int). Never use
@@ -106,3 +108,31 @@ private fun groupIndian(rupees: Long): String {
     return pairs + "," + digits.takeLast(3)
 }
 
+internal const val BACKSPACE = "⌫"
+
+internal fun String.toPaise(): Long = parsePaise(this) ?: 0L
+
+/** Applies one keypad press, allowing at most 7 rupee digits and 2 decimals. */
+internal fun String.afterKey(key: String): String = when (key) {
+    BACKSPACE -> dropLast(1)
+    "." -> if (contains('.')) this else if (isEmpty()) "0." else "$this."
+    else -> {
+        val decimals = substringAfter('.', missingDelimiterValue = "")
+        when {
+            contains('.') -> if (decimals.length < 2) this + key else this
+            this == "0" -> key
+            length >= 7 -> this
+            else -> this + key
+        }
+    }
+}
+
+/** Digits only; eight of them keeps the figure inside an Int. */
+fun cleanAmount(raw: String): String = raw.filter(Char::isDigit).take(8)
+
+/** Up to three digits and one decimal place, e.g. "12.5". */
+fun cleanPercent(raw: String): String {
+    val kept = raw.filter { it.isDigit() || it == '.' }
+    val whole = kept.substringBefore('.').take(3)
+    return if ('.' in kept) whole + "." + kept.substringAfter('.').filter(Char::isDigit).take(1) else whole
+}

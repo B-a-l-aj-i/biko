@@ -1,4 +1,4 @@
-package com.budgetapp.ui.pay
+package com.budgetapp.ui.category
 
 import com.budgetapp.ui.theme.PhosphorLight
 import com.budgetapp.ui.theme.cardBorder
@@ -20,8 +20,6 @@ import com.budgetapp.ui.components.BudgetShareHint
 import com.budgetapp.ui.components.ModalButtons
 import com.budgetapp.ui.components.ModalFieldShape
 import com.budgetapp.ui.components.SegmentedToggle
-import com.budgetapp.ui.components.cleanAmount
-import com.budgetapp.ui.components.cleanPercent
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -65,6 +63,8 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import com.budgetapp.data.cleanAmount
+import com.budgetapp.data.cleanPercent
 
 private const val PANEL_SLIDE_MS = 280
 

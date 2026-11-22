@@ -4,11 +4,6 @@ package com.budgetapp.ui.pay
 
 import com.budgetapp.ui.components.scrollFade
 import com.budgetapp.ui.theme.PhosphorLight
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.AnimationVector2D
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.VectorConverter
-import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -35,31 +30,23 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onPlaced
-import androidx.compose.ui.layout.positionInParent
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.round
 import com.budgetapp.ui.components.Presence
 import com.budgetapp.ui.components.RemoveBadge
 import com.budgetapp.ui.components.RemoveMode
 import com.budgetapp.ui.components.rememberPresences
 import com.budgetapp.ui.components.rememberRemoveMode
 import com.budgetapp.ui.components.shake
-import com.budgetapp.ui.home.CategoryBudget
-import kotlinx.coroutines.launch
+import com.budgetapp.data.CategoryBudget
+import com.budgetapp.ui.components.glideToPlace
 
 private val ChipShape = RoundedCornerShape(8.dp)
 private val ChipHeight = 34.dp
@@ -120,30 +107,6 @@ fun CategoryChips(
             }
         }
     }
-}
-
-/**
- * Makes an element slide to its new spot whenever the layout moves it, rather
- * than jump there. It is laid out at the new spot at once and drawn back at the
- * old one, then the difference is sprung down to nothing.
- */
-private fun Modifier.glideToPlace(): Modifier = composed {
-    val scope = rememberCoroutineScope()
-    var target by remember { mutableStateOf<IntOffset?>(null) }
-    var position by remember { mutableStateOf<Animatable<IntOffset, AnimationVector2D>?>(null) }
-    this
-        .onPlaced { target = it.positionInParent().round() }
-        .offset {
-            val goal = target ?: return@offset IntOffset.Zero
-            // First placement: start where it is, with nothing to animate.
-            val current = position ?: Animatable(goal, IntOffset.VectorConverter).also { position = it }
-            if (current.targetValue != goal) {
-                scope.launch {
-                    current.animateTo(goal, spring(dampingRatio = 0.86f, stiffness = Spring.StiffnessMediumLow))
-                }
-            }
-            current.value - goal
-        }
 }
 
 @Composable

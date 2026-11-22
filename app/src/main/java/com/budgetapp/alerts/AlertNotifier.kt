@@ -1,5 +1,6 @@
 package com.budgetapp.alerts
 
+import com.budgetapp.R
 import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -12,7 +13,6 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import com.budgetapp.MainActivity
-import com.budgetapp.R
 import com.budgetapp.data.Payment
 import com.budgetapp.data.UNKNOWN_PAYEE
 import com.budgetapp.data.alertSourceLabel

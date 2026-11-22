@@ -26,6 +26,7 @@ import com.budgetapp.data.monthBounds
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import com.budgetapp.data.CategoryBudget
 
 class HomeViewModel(private val repository: Repository) : ViewModel() {
 

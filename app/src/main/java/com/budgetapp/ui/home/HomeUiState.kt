@@ -5,7 +5,7 @@ import com.budgetapp.data.SpendingPace
 import com.budgetapp.data.budgetLevel
 import com.budgetapp.data.percentUsed
 import com.budgetapp.data.rupeesToPaise
-
+import com.budgetapp.data.CategoryBudget
 
 /**
  * Everything the home screen shows. Budgets are whole rupees; anything spent or
@@ -84,19 +84,6 @@ data class HomeUiState(
 
 /** A payment sent to a UPI app whose outcome isn't known yet. */
 data class PendingPayment(val id: Long, val payee: String, val amountPaise: Long)
-
-data class CategoryBudget(
-    val name: String,
-    val spentPaise: Long,
-    /** Whole rupees. Zero means no budget set. */
-    val budget: Int,
-    val emoji: String = "",
-) {
-    /** Negative once over budget. */
-    val leftPaise: Long
-        get() = rupeesToPaise(budget) - spentPaise
-
-}
 
 data class Transaction(
     val payee: String,
