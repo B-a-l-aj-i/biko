@@ -49,6 +49,14 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -147,23 +155,56 @@ internal fun Header(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             // The pill and the eye are the same height, so they sit on one line.
-            // A tap or a long press lists the months to look back at.
+            // Touching the pill lists the months to look back at. The list can be
+            // scrubbed: keep the finger down, slide it over the months and lift on
+            // one to show it. A plain tap leaves the list open to tap a month.
             var picking by remember { mutableStateOf(false) }
+            var scrubbed by remember { mutableStateOf<YearMonth?>(null) }
             val pillHaptics = LocalHapticFeedback.current
+            val currentMonths by rememberUpdatedState(months)
+            val currentOnMonth by rememberUpdatedState(onMonth)
             Box(Modifier.fillMaxHeight()) {
             Row(
                 modifier = Modifier
                     .fillMaxHeight()
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.primary)
-                    .combinedClickable(
-                        onClickLabel = "Pick a month",
-                        onLongClick = {
-                            pillHaptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                    .semantics {
+                        role = Role.Button
+                        onClick(label = "Pick a month") { picking = true; true }
+                    }
+                    .pointerInput(Unit) {
+                        awaitEachGesture {
+                            val down = awaitFirstDown()
+                            down.consume()
                             picking = true
-                        },
-                        onClick = { picking = true },
-                    )
+                            scrubbed = null
+                            var moved = false
+                            while (true) {
+                                val event = awaitPointerEvent()
+                                val change = event.changes.firstOrNull { it.id == down.id } ?: break
+                                if (!change.pressed) {
+                                    change.consume()
+                                    break
+                                }
+                                if ((change.position - down.position).getDistance() > viewConfiguration.touchSlop) moved = true
+                                val under = monthUnderFinger(currentMonths, change.position, size.height, this)
+                                if (under != scrubbed) {
+                                    scrubbed = under
+                                    // A light tick each time the finger reaches another month.
+                                    if (under != null) pillHaptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                }
+                                change.consume()
+                            }
+                            val picked = scrubbed
+                            scrubbed = null
+                            if (moved) {
+                                // Slid and lifted: on a month shows it; anywhere else just closes.
+                                picking = false
+                                if (picked != null) currentOnMonth(picked)
+                            }
+                        }
+                    }
                     .padding(start = 12.dp, end = 9.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
@@ -190,6 +231,7 @@ internal fun Header(
                     onMonth(month)
                 },
                 onDismiss = { picking = false },
+                highlighted = scrubbed,
             )
             }
             // A line about the pace of spending, with no amount in it. It changes
